@@ -119,3 +119,48 @@
   (cond
     ((zero? m) 0)
     (else (+! n (x! n (sub1 m))))))
+
+; sum the numbers in 'tup1' and 'tup2' by their
+; position, producing a new tuple containing the sums
+(define (tup+ tup1 tup2)
+  (cond
+    ((and (null? tup1) (null? tup2)) '())
+    (else (cons (+ (car tup1) (car tup2)) (tup+ (cdr tup1) (cdr tup2))))))
+
+; sum the numbers in 'tup1' and 'tup2' by their
+; position, producing a new tuple containing the sums
+; if one tuple is longer its additional numbers will
+; be kept untouched
+(define (tup++ tup1 tup2)
+  (cond
+    ((null? tup1) tup2)
+    ((null? tup2) tup1)
+    (else (cons (+ (car tup1) (car tup2)) (tup++ (cdr tup1) (cdr tup2))))))
+
+; 'greater than' implemented with primitives
+(define (>! n m)
+  (cond
+    ((zero? n) #f)
+    ((zero? m) #t)
+    (else (>! (sub1 n) (sub1 m)))))
+
+; 'lower than' implemented with primitives
+(define (<! n m)
+  (cond
+    ((zero? m) #f)
+    ((zero? n) #t)
+    (else (<! (sub1 n) (sub1 m)))))
+
+; 'equals' for numbers based on primitives
+; 'greater than' and 'lower than'
+(define (=! n m)
+  (cond
+    ((>! n m) #f)
+    ((<! n m) #f) 
+    (else #t)))
+
+; power function using primitive 'x!'
+(define (^! b e)
+  (cond
+    ((zero? e) 1)
+    (else (x! b (^! b (sub1 e))))))
