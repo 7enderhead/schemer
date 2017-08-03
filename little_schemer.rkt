@@ -164,3 +164,29 @@
   (cond
     ((zero? e) 1)
     (else (x! b (^! b (sub1 e))))))
+
+; a recursive version of division
+(define (/! n m)
+  (cond
+    ((<! n m) 0)
+    (else (add1 (/! (-! n m) m)))))
+
+; recursive version of length
+(define (length! lat)
+  (cond
+    ((null? lat) 0)
+    (else (add1 (length! (cdr lat))))))
+
+; pick the 'n'-th element from list of
+; atom 'lat'
+(define (pick n lat)
+  (cond
+    ((=! 1 n) (car lat))
+    (else (pick (sub1 n) (cdr lat)))))
+
+; return list of atoms 'lat' without
+; 'n'-th element removed
+(define (rempick n lat)
+  (cond
+    ((=! 1 n) (cdr lat))
+    (else (cons (car lat) (rempick (sub1 n) (cdr lat))))))
