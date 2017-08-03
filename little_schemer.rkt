@@ -190,3 +190,11 @@
   (cond
     ((=! 1 n) (cdr lat))
     (else (cons (car lat) (rempick (sub1 n) (cdr lat))))))
+
+; remove all numbers from list of atoms 'lat'
+(define (no-nums lat)
+  (cond
+    ((null? lat) '())
+    (else (cond
+            ((number? (car lat)) (no-nums (cdr lat)))
+            (else (cons (car lat) (no-nums (cdr lat))))))))
