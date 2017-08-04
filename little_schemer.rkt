@@ -198,3 +198,58 @@
     (else (cond
             ((number? (car lat)) (no-nums (cdr lat)))
             (else (cons (car lat) (no-nums (cdr lat))))))))
+
+; extract all numbers from list of atoms 'lat'
+(define (all-nums lat)
+  (cond
+    ((null? lat) '())
+    (else (cond
+            ((number? (car lat)) (cons (car lat) (all-nums (cdr lat))))
+            (else (all-nums (cdr lat)))))))
+
+; are atoms equal, either compared as numbers via '='
+; or with 'eq?' for all other atoms
+(define (eqan? a1 a2)
+  (cond
+    ((and (number? a1) (number? a2)) (=! a1 a2))
+    ((or (number? a1) (number? a2)) #f)
+    (else (eq? a1 a2))))
+
+; How many times does 'a' occur in 'lat'?
+(define (occur a lat)
+  (cond
+    ((null? lat) 0)
+    (else (cond
+            ((eqan? a (car lat)) (add1 (occur a (cdr lat))))
+            (else (occur a (cdr lat)))))))
+
+; Is the given number 1?
+(define (one? n)
+  (=! 1 n))
+
+; remove all occurences of atom 'a' from
+; list 'l', including from nested lists
+(define (rember* a l)
+  (cond
+    ((null? l) '())
+    ((and (atom? (car l)) (eqan? a (car l))) (rember* a (cdr l)))
+    ((atom? (car l)) (cons (car l) (rember* a (cdr l))))
+    (else (cons (rember* a (car l)) (rember* a (cdr l))))))
+
+; insert 'new' after each occurrence of 'old'
+; in list l, even in nested lists
+(define (insertR* new old l)
+  (cond
+    ((null? l) '())
+    ((and (atom? (car l)) (eqan? old (car l))) (cons old (cons new (insertR* new old (cdr l)))))
+    ((atom? (car l)) (cons (car l) (insertR* new old (cdr l))))
+    (else (cons (insertR* new old (car l)) (insertR* new old (cdr l))))))
+
+; number of occurrences of atom 'a' in list 'l',
+; including nested lists
+(define (occur* a l)
+  (cond
+    ((null? l) 0)
+    ((and (atom? (car l)) (eqan? a (car l))) (add1 (occur* a (cdr l))))
+    ((atom? (car l)) (occur* a (cdr l)))
+    (else (+! (occur* a (car l)) (occur* a (cdr l))))))
