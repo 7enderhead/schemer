@@ -253,3 +253,29 @@
     ((and (atom? (car l)) (eqan? a (car l))) (add1 (occur* a (cdr l))))
     ((atom? (car l)) (occur* a (cdr l)))
     (else (+! (occur* a (car l)) (occur* a (cdr l))))))
+
+; substitute all occurrences of 'old' with 'new' in list 'l',
+; including nested lists
+(define (subst* new old l)
+  (cond
+    ((null? l) '())
+    ((and (atom? (car l)) (eqan? old (car l))) (cons new (subst* new old (cdr l))))
+    ((atom? (car l)) (cons (car l) (subst* new old (cdr l))))
+    (else (cons (subst* new old (car l)) (subst* new old (cdr l))))))
+
+; insert 'new' before each occurrence of 'old'
+; in list l, even in nested lists
+(define (insertL* new old l)
+  (cond
+    ((null? l) '())
+    ((and (atom? (car l)) (eqan? old (car l))) (cons new (cons old (insertL* new old (cdr l)))))
+    ((atom? (car l)) (cons (car l) (insertL* new old (cdr l))))
+    (else (cons (insertL* new old (car l)) (insertL* new old (cdr l))))))
+
+; is atom 'a' a member of list 'l',
+; including nested lists
+(define (member* a l)
+  (cond
+    ((null? l) #f)
+    ((atom? (car l)) (or (eqan? a (car l)) (member* a (cdr l))))
+    (else (or (member* a (car l)) (member* a (cdr l))))))
