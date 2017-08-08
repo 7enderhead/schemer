@@ -279,3 +279,32 @@
     ((null? l) #f)
     ((atom? (car l)) (or (eqan? a (car l)) (member* a (cdr l))))
     (else (or (member* a (car l)) (member* a (cdr l))))))
+
+; Are the two lists equal?
+(define (eqlist? l1 l2)
+  (cond
+    ; two empty lists are equal
+    ((and (null? l1) (null? l2)) #t)
+    ; only one list is empty
+    ((or (null? l1) (null? l2)) #f)
+    ; both first elements are atoms and can be compared, along with the rest of the list
+    ((and (atom? (car l1)) (atom? (car l2)))
+     (and (eqan? (car l1) (car l2)) (eqlist? (cdr l1) (cdr l2))))
+    ; both first elements are list and can be further compared, along with the rest of the list
+    ((and (list? (car l1)) (list? (car l2)))
+     (and (eqlist? (car l1) (car l2)) (eqlist? (cdr l1) (cdr l2))))
+    (else #f)))
+
+; equality for atoms and S-expressions
+(define (equal?! s1 s2)
+  (cond
+    ((and (atom? s1) (atom? s2) (eqan? s1 s2)))
+    ((or (atom? s1) (atom? s2)) #f)
+    (else (eqlist?! s1 s2))))
+
+; eqlist version which uses equal??
+(define (eqlist?! l1 l2)
+  (cond
+    ((and (null? l1) (null? l2)) #t)
+    ((or (null? l1) (null? l2)) #f)
+    (else (and (equal?! (car l1) (car l2)) (eqlist?! (cdr l1) (cdr l2))))))
