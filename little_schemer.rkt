@@ -308,3 +308,30 @@
     ((and (null? l1) (null? l2)) #t)
     ((or (null? l1) (null? l2)) #f)
     (else (and (equal?! (car l1) (car l2)) (eqlist?! (cdr l1) (cdr l2))))))
+
+; Does the representation of an arithmentic expression 'aexp'
+; only contain numbers besides '+', 'x', '^'?
+(define (numbered? aexp)
+  (cond
+    ; arithmetic expression that are atoms should be numbers
+    ((atom? aexp) (number? aexp))
+    (else (and
+           (numbered? (car aexp))
+           (or (eq? '+ (cadr aexp)) (eq? 'x (cadr aexp)) (eq? '^ (cadr aexp)))
+           (numbered? (caddr aexp))))))
+
+; value of given in-fix arithmetic expression
+(define (in-value exp)
+  (cond
+    ((atom? exp) exp)
+    ((eq? '+ (cadr exp)) (+ (in-value (car exp)) (in-value (caddr exp))))
+    ((eq? 'x (cadr exp)) (* (in-value (car exp)) (in-value (caddr exp))))
+    ((eq? '^ (cadr exp)) (expt (in-value (car exp)) (in-value (caddr exp))))))
+
+; value of given pre-fix arithmetic expression
+(define (pre-value exp)
+  (cond
+    ((atom? exp) exp)
+    ((eq? '+ (car exp)) (+ (pre-value (cadr exp)) (pre-value (caddr exp))))
+    ((eq? 'x (car exp)) (* (pre-value (cadr exp)) (pre-value (caddr exp))))
+    ((eq? '^ (car exp)) (expt (pre-value (cadr exp)) (pre-value (caddr exp))))))
