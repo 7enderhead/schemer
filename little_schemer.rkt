@@ -335,3 +335,50 @@
     ((eq? '+ (car exp)) (+ (pre-value (cadr exp)) (pre-value (caddr exp))))
     ((eq? 'x (car exp)) (* (pre-value (cadr exp)) (pre-value (caddr exp))))
     ((eq? '^ (car exp)) (expt (pre-value (cadr exp)) (pre-value (caddr exp))))))
+
+; functions for numbers represented as lists:
+; (): 0
+; (()): 1
+; (() ()): 2, etc
+
+(define (sero? n)
+  (eq? '() n))
+
+(define (edd1 n)
+  (cons '() n))
+
+(define (zub1 n)
+  (cdr n))
+
+(define (+!! n m)
+  (cond
+    ((sero? m) n)
+    (else (+!! (edd1 n) (zub1 m)))))
+
+; Is list of atoms 'lat' a set, i.e., no atom appears
+; more than once?
+(define (set? lat)
+  (cond
+    ((null? lat) #t)
+    (else (and (not (member? (car lat) (cdr lat)))
+               (set? (cdr lat))))))
+
+; produce a set from list of atoms 'lat' by removing
+; duplicate entries
+(define (makeset lat)
+  (cond
+    ((null? lat) '())
+    (else (cons (car lat) (makeset (multirember (car lat) (cdr lat)))))))
+
+; Is 'set1' a subset of 'set2'?
+(define (subset? set1 set2)
+  (cond
+    ((null? set1) #t)
+    (else (and (member? (car set1) set2)
+               (subset? (cdr set1) set2)))))
+
+; Are 'set1' and 'set2' equal, i.e., do they contain
+; the same elements?
+(define (eqset? set1 set2)
+  (and (subset? set1 set2) (subset? set2 set1)))
+
