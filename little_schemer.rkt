@@ -382,3 +382,49 @@
 (define (eqset? set1 set2)
   (and (subset? set1 set2) (subset? set2 set1)))
 
+; Do 'set1' and 'set2' have any elements in common?
+(define (intersect? set1 set2)
+  (cond
+    ((null? set1) #f)
+    (else (or (member? (car set1) set2)
+              (intersect? (cdr set1) set2)))))
+
+; Elements which 'set1' and 'set2' have in common
+(define (intersect set1 set2)
+  (cond
+    ((null? set1) '())
+    ((member? (car set1) set2) (cons (car set1) (intersect (cdr set1) set2)))
+    (else (intersect (cdr set1) set2))))
+
+; Elements which are either in 'set1' or 'set2' (or both)
+(define (union set1 set2)
+  (cond
+    ((null? set1) set2)
+    ((member? (car set1) set2) (union (cdr set1) set2))
+    (else (cons (car set1) (union (cdr set1) set2)))))
+
+; All elements of 'set1' that are not in 'set2'
+(define (difference set1 set2)
+  (cond
+    ((null? set1) '())
+    ((member? (car set1) set2) (difference (cdr set1) set2))
+    (else (cons (car set1) (difference (cdr set1) set2)))))
+
+; Is atom 'a' a member of all lists in list of lists 'lists'?
+(define (memberall? a lists)
+  (cond
+    ((null? lists) #t)
+    (else (and (member? a (car lists)) (memberall? a (cdr lists))))))
+
+; Intersection of all sets in (non-empty) list of sets 'l-set'
+(define (intersectall!! l-set)
+  (cond
+    ((null? (car l-set)) '())
+    ((memberall? (caar l-set) (cdr l-set)) (cons (caar l-set) (intersectall (cons (cdar l-set) (cdr l-set)))))
+    (else (intersectall (cons (cdar l-set) (cdr l-set))))))
+
+; And here the much easier version from the book
+(define (intersectall l-set)
+  (cond
+    ((null? (cdr l-set)) (car l-set))
+    (else (intersect (car l-set) (intersectall (cdr l-set))))))
