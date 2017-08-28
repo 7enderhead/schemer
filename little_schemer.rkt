@@ -428,3 +428,12 @@
   (cond
     ((null? (cdr l-set)) (car l-set))
     (else (intersect (car l-set) (intersectall (cdr l-set))))))
+
+; Is 'x' a pair, i.e., a list with exactly two s-expressions?
+(define (a-pair? x)
+  (cond
+    ((atom? x) #f)
+    ((null? x) #f)
+    ((null? (cdr x)) #f)
+    ((null? (cddr x)) #t)
+    (else #f)))
