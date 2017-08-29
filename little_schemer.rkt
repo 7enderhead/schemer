@@ -437,3 +437,54 @@
     ((null? (cdr x)) #f)
     ((null? (cddr x)) #t)
     (else #f)))
+
+; remove the first element from list 'l' which
+; matches 'a' given test function 'test?'
+(define (rember-f_ test? a l)
+  (cond
+    ((null? l) '())
+    ((test? a (car l)) (cdr l))
+    (else (cons (car l) (rember-f_ test? a (cdr l))))))
+
+; return a function which compares a given parameter 'x' to 'a'
+; using eq?
+(define (eq?-c a)
+  (lambda (x)
+    (eq? x a)))
+
+; version of rember-f whose result is a function with two arguments
+; 'a' und 'l', which, when invoked, removes the first match of 'a'
+; with 'test?' from 'l'
+(define (rember-f test?)
+  (lambda (a l)
+    (cond
+    ((null? l) '())
+    ((test? a (car l)) (cdr l))
+    (else (cons (car l) ((rember-f test?) a (cdr l)))))))
+
+; parameterizable version of insertL where the test function 'test?'
+; is given and the result is a function with three parameters 'new', 'old' and 'l' which
+; inserts 'new' after the first occurrence of 'old' in 'l' which is matched by 'test?'
+(define (insertL-f test?)
+  (lambda (new old l)
+    (cond
+      ((null? l) '())
+      ((test? old (car l)) (cons new (cons old (cdr l))))
+      (else (cons (car l) ((insertL-f test?) new old (cdr l)))))))
+
+; insertR as above
+(define (insertR-f test?)
+  (lambda (new old l)
+    (cond
+      ((null? l) '())
+      ((test? old (car l)) (cons old (cons new (cdr l))))
+      (else (cons (car l) ((insertR-f test?) new old (cdr l)))))))
+
+
+; a generalization of insertL-f and insertR-f with the insert part factored out
+(define (insert-g seq)
+  (lambda (new old l)
+    (cond
+      ((null? l) '())
+      ((eq? old (car l)) (seq new old (cdr l)))
+      (else (cons (car l) ((insert-g seq) new old (cdr l)))))))
