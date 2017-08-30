@@ -48,6 +48,7 @@
     ((eq? old (car lat)) (cons old (cons new (cdr lat))))
     (else (cons (car lat) (insertR new old (cdr lat))))))
 
+
 ; insert 'new' after all occurrences of 'old'
 ; in list of atoms 'lat'
 (define (multiinsertR new old lat)
@@ -488,3 +489,42 @@
       ((null? l) '())
       ((eq? old (car l)) (seq new old (cdr l)))
       (else (cons (car l) ((insert-g seq) new old (cdr l)))))))
+
+; helper function for insert-g which makes it act like 'subst'
+(define (seq-subst new old l)
+  (cons new l))
+
+; return the appropriate function (+, *, expt) according
+; to which symbol is given ('+', '*', or '^')
+(define (atom-to-function x)
+  (cond
+    ((eq? '+ x) +)
+    ((eq? '* x) *)
+    ((eq? '^ x) expt)))
+
+; access helper functions for prefix expressions
+
+(define (1st-sub-exp nexp)
+  (cadr nexp))
+
+(define (2nd-sub-exp nexp)
+  (caddr nexp))
+
+(define (operator nexp)
+  (car nexp))
+
+; generic version of 'value' of arithmetic expressions
+(define (value nexp)
+  (cond
+    ((atom? nexp) nexp)
+    (((atom-to-function (operator nexp))
+      (value (1st-sub-exp nexp))
+      (value (2nd-sub-exp nexp))))))
+
+; a version of multirember (removing all occurrences of an atom from a list of atoms)
+; parameterized with a 'test?' function, which tells us whether an atom should be remove
+(define (multiremberT test? lat)
+  (cond
+    ((null? lat) '())
+    ((test? (car lat)) (multiremberT test? (cdr lat)))
+    (else (cons (car lat) (multiremberT test? (cdr lat))))))
