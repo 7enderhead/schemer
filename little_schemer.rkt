@@ -528,3 +528,33 @@
     ((null? lat) '())
     ((test? (car lat)) (multiremberT test? (cdr lat)))
     (else (cons (car lat) (multiremberT test? (cdr lat))))))
+
+; Insert 'new' to the left of all 'oldL' and to the right of all
+; 'oldR' in list of atoms 'lat'
+(define (multiinsertLR new oldL oldR lat)
+  (cond
+    ((null? lat) '())
+    ((eq? oldL (car lat)) (cons new (cons oldL (multiinsertLR new oldL oldR (cdr lat)))))
+    ((eq? oldR (car lat)) (cons oldR (cons new (multiinsertLR new oldL oldR (cdr lat)))))
+    (else (cons (car lat) (multiinsertLR new oldL oldR (cdr lat))))))
+
+; Version of multiinserLR with collector 'col' which is called with the
+; new list with substitutions, and the number of left and right insertions,
+; respectively.
+(define (multiinsertLR&co new oldL oldR lat col)
+  (cond
+    ((null? lat) (col '() 0 0))
+    ((eq? oldL (car lat)) (multiinsertLR&co new oldL oldR (cdr lat) (lambda (newlat leftInserts rightInserts)
+                                                                      (col (cons new (cons oldL newlat)) (add1 leftInserts) rightInserts))))
+    ((eq? oldR (car lat)) (multiinsertLR&co new oldL oldR (cdr lat) (lambda (newlat leftInserts rightInserts)
+                                                                      (col (cons oldR (cons new newlat)) leftInserts (add1 rightInserts)))))
+    (else (multiinsertLR&co new oldL oldR (cdr lat) (lambda (newlat leftInserts rightInserts)
+                                                      (col (cons (car lat) newlat) leftInserts rightInserts))))))
+
+; Removes all odd numbers from list of nested lists 'l'
+(define (evens-only* l)
+  (cond
+    ((null? l) '())
+    ((and (atom? (car l)) (number? (car l)) (even? (car l))) (cons (car l) (evens-only* (cdr l))))
+    ((atom? (car l)) (evens-only* (cdr l)))
+    (else (cons (evens-only* (car l)) (evens-only* (cdr l))))))
