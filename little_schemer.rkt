@@ -555,6 +555,23 @@
 (define (evens-only* l)
   (cond
     ((null? l) '())
-    ((and (atom? (car l)) (number? (car l)) (even? (car l))) (cons (car l) (evens-only* (cdr l))))
+    ((and (atom? (car l)) (even? (car l))) (cons (car l) (evens-only* (cdr l))))
     ((atom? (car l)) (evens-only* (cdr l)))
     (else (cons (evens-only* (car l)) (evens-only* (cdr l))))))
+
+; Collector version of evens-only* that also calculates the product of even and
+; the sum of odd numbers.
+(define (evens-only*&co l col)
+  (cond
+    ((null? l) (col '() 1 0))
+    ((and (atom? (car l)) (even? (car l)))
+     (evens-only*&co (cdr l) (lambda (newList evenProduct oddSum)
+                               (col (cons (car l) newList) (* (car l) evenProduct) oddSum))))
+    ((atom? (car l))
+     (evens-only*&co (cdr l) (lambda (newList evenProduct oddSum)
+                               (col newList evenProduct (+ (car l) oddSum)))))
+    (else (evens-only*&co (car l) (lambda (carList carEvenProduct carOddSum)
+                                    (evens-only*&co (cdr l) (lambda (cdrList cdrEvenProduct cdrOddSum)
+                                                              (col (cons carList cdrList)
+                                                                   (* carEvenProduct cdrEvenProduct)
+                                                                   (+ carOddSum cdrOddSum)))))))))
