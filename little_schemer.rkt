@@ -1,5 +1,8 @@
 #lang racket
 
+(define (display-all . vs)
+  (for-each display vs))
+
 (define (atom? x)
   (and (not (pair? x)) (not (null? x))))
 
@@ -549,6 +552,20 @@
     ((eq? oldR (car lat)) (multiinsertLR&co new oldL oldR (cdr lat) (lambda (newlat leftInserts rightInserts)
                                                                       (col (cons oldR (cons new newlat)) leftInserts (add1 rightInserts)))))
     (else (multiinsertLR&co new oldL oldR (cdr lat) (lambda (newlat leftInserts rightInserts)
+                                                      (col (cons (car lat) newlat) leftInserts rightInserts))))))
+
+; version of above with intermediate output displayed
+(define (multiinsertLR&co2 new oldL oldR lat col)
+  (cond
+    ((null? lat) (col '() 0 0))
+    ((eq? oldL (car lat)) (multiinsertLR&co2 new oldL oldR (cdr lat) (lambda (newlat leftInserts rightInserts)
+                                                                       (display-all newlat " " leftInserts " " rightInserts "\n")
+                                                                      (col (cons new (cons oldL newlat)) (add1 leftInserts) rightInserts))))
+    ((eq? oldR (car lat)) (multiinsertLR&co2 new oldL oldR (cdr lat) (lambda (newlat leftInserts rightInserts)
+                                                                       (display-all newlat " " leftInserts " " rightInserts "\n")
+                                                                      (col (cons oldR (cons new newlat)) leftInserts (add1 rightInserts)))))
+    (else (multiinsertLR&co2 new oldL oldR (cdr lat) (lambda (newlat leftInserts rightInserts)
+                                                       (display-all newlat " " leftInserts " " rightInserts "\n")
                                                       (col (cons (car lat) newlat) leftInserts rightInserts))))))
 
 ; Removes all odd numbers from list of nested lists 'l'
