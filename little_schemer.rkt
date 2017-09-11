@@ -592,3 +592,28 @@
                                                               (col (cons carList cdrList)
                                                                    (* carEvenProduct cdrEvenProduct)
                                                                    (+ carOddSum cdrOddSum)))))))))
+
+; Look for atom 'a' in list of atoms 'lat' by starting at first position;
+; following to the element at the number given there or comparing against
+; 'a' if it is a symbol.
+(define (looking a lat)
+  (keep-looking a (pick 1 lat) lat))
+
+; Keep looking for atom 'a' which symbol or number 'sorn' in lat:
+; Either continue with element at position 'sorn' if it is a number or
+; compare it to 'a'.
+(define (keep-looking a sorn lat)
+  (cond
+    ((number? sorn) (keep-looking a (pick sorn lat) lat))
+    (else (eq? sorn a))))
+
+(define (build sl s2)
+  (cons sl (cons s2 '())))
+
+; Take a pair whose first component is a pair and build a
+; pair by shifting the second part oft the first component
+; into the second component.
+(define (shift pair)
+  (build (first (first pair))
+         (build (second (first pair))
+                (second pair))))
