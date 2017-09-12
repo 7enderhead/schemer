@@ -617,3 +617,16 @@
   (build (first (first pair))
          (build (second (first pair))
                 (second pair))))
+
+; Align the given pair or atom 'pora'.
+(define (align pora)
+  (cond
+    ((atom? pora) pora)
+    ((a-pair? (first pora)) (align (shift pora)))
+    (else (build (first pora) (align (second pora))))))
+
+(define (length* pora)
+  (cond
+    ((atom? pora) 1)
+    (else (+ (length* (first pora))
+             (length* (second pora))))))
