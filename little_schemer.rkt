@@ -630,3 +630,26 @@
     ((atom? pora) 1)
     (else (+ (length* (first pora))
              (length* (second pora))))))
+
+(define (Collatz n)
+  (cond
+    ((one? n) 1)
+    (else
+     (cond
+       ((even? n) (Collatz (/ n 2)))
+       (else (Collatz (add1 (* 3 n))))))))
+
+(define A-invocations 0)
+
+(define (A a b)
+  (set! A-invocations 0)
+  (Ackermann a b))
+
+(define (Ackermann a b)
+  (set! A-invocations (add1 A-invocations))
+  (display-all A-invocations ":\t" a "\t" b "\n")
+  (cond
+    ((> A-invocations 10000) (error "exceeded max. invocations"))
+    ((zero? a) (add1 b))
+    ((zero? b) (Ackermann (sub1 a) 1))
+    (else (Ackermann (sub1 a) (Ackermann a (sub1 b))))))
