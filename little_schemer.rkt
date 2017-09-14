@@ -625,11 +625,20 @@
     ((a-pair? (first pora)) (align (shift pora)))
     (else (build (first pora) (align (second pora))))))
 
+; Count the atoms in the (potentially nested) pair(s).
 (define (length* pora)
   (cond
     ((atom? pora) 1)
     (else (+ (length* (first pora))
              (length* (second pora))))))
+
+; 'Weigh' the given nested pairs by assigning twice as much weight to
+; the first element than to the second.
+(define (weight* pora)
+  (cond
+    ((atom? pora) 1)
+    (else (+ (* 2 (weight* (first pora)))
+             (weight* (second pora))))))
 
 (define (Collatz n)
   (cond
