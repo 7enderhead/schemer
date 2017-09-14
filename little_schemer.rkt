@@ -662,3 +662,40 @@
     ((zero? a) (add1 b))
     ((zero? b) (Ackermann (sub1 a) 1))
     (else (Ackermann (sub1 a) (Ackermann a (sub1 b))))))
+
+(define (eternity x)
+  (eternity x))
+
+; length-0
+#;((lambda (next-length) (lambda (l)
+                           (cond
+                             ((null? l) 0)
+                             (else (add1 next-length (cdr l))))))
+   eternity)
+
+; length-1
+#;((lambda (next-length) (lambda (l)
+                           (cond
+                             ((null? l) 0)
+                             (else (add1 (next-length (cdr l)))))))
+   ((lambda (next-length) (lambda (l)
+                            (cond
+                              ((null? l) 0)
+                              (else (add1 (next-length (cdr l)))))))
+    eternity))
+
+; length-0
+#;((lambda (mk-length)
+   (mk-length eternity)) (lambda (next-length)
+                           (lambda (l)
+                             (cond
+                               ((null? l) 0)
+                               (else (add1 (next-length (cdr l))))))))
+; length-1
+#;((lambda (mk-length)
+     (mk-length
+      (mk-length eternity))) (lambda (next-length)
+                               (lambda (l)
+                                 (cond
+                                   ((null? l) 0)
+                                   (else (add1 (next-length (cdr l))))))))
