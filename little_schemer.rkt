@@ -721,7 +721,8 @@
                                                  ((mk-length mk-length) x))
                                                (cdr l))))))))
 
-; pull eta-conversion out; now can be referenced by parameter name 'length'
+; pull eta-conversion out; now can be referenced by parameter name 'length' without
+; being evaluated prematurely when being passed as parameter
 #;((lambda (mk-length)
      (mk-length mk-length)) (lambda (mk-length)
                               ((lambda (length)
@@ -731,3 +732,16 @@
                                      (else (add1 (length (cdr l)))))))
                                (lambda (x)
                                  ((mk-length mk-length) x)))))
+
+; now factor out the (lambda (length) ...) part, which is independent from
+; the rest
+#;((lambda (le)
+   ((lambda (mk-length)
+      (mk-length mk-length)) (lambda (mk-length)
+                               (le (lambda (x)
+                                     ((mk-length mk-length) x))))))
+ (lambda (length)
+   (lambda (l)
+     (cond
+       ((null? l) 0)
+       (else (add1 (length (cdr l))))))))
