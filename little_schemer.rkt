@@ -700,10 +700,34 @@
                                    ((null? l) 0)
                                    (else (add1 (next-length (cdr l))))))))
 
-; length-n
+; length-n; this now works
 #;((lambda (mk-length)
      (mk-length mk-length)) (lambda (mk-length)
                                 (lambda (l)
                                   (cond
                                     ((null? l) 0)
                                     (else (add1 ((mk-length mk-length) (cdr l))))))))
+
+; But in the inner (add1 (mk-length mk-length) (cdr l)) we want to write
+; instead (add1 (length (cdr l)), so...
+
+; eta-conversion of inner (mk-length mk-length) expression
+#;((lambda (mk-length)
+     (mk-length mk-length)) (lambda (mk-length)
+                              (lambda (l)
+                                (cond
+                                  ((null? l) 0)
+                                  (else (add1 ((lambda (x)
+                                                 ((mk-length mk-length) x))
+                                               (cdr l))))))))
+
+; pull eta-conversion out; now can be referenced by parameter name 'length'
+#;((lambda (mk-length)
+     (mk-length mk-length)) (lambda (mk-length)
+                              ((lambda (length)
+                                 (lambda (l)
+                                   (cond
+                                     ((null? l) 0)
+                                     (else (add1 (length (cdr l)))))))
+                               (lambda (x)
+                                 ((mk-length mk-length) x)))))
