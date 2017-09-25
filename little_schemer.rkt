@@ -745,3 +745,22 @@
      (cond
        ((null? l) 0)
        (else (add1 (length (cdr l))))))))
+
+; the Y combinator
+(define (Y function)
+    ((lambda (f) (f f))
+     (lambda (f)
+       (function (lambda (x) ((f f) x))))))
+
+; Y combinator for function with two arguments
+(define (Y2 function)
+    ((lambda (f) (f f))
+     (lambda (f)
+       (function (lambda (x y) ((f f) x y))))))
+
+#;((Y2 (lambda (length)
+   (lambda (l x)
+     (cond
+       ((or (null? l) (zero? x)) 0)
+       (else (add1 (length (cdr l) (sub1 x))))))))
+   '(a b c) 5)
