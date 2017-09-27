@@ -764,3 +764,46 @@
        ((or (null? l) (zero? x)) 0)
        (else (add1 (length (cdr l) (sub1 x))))))))
    '(a b c) 5)
+
+; Create a new entry. An entry is a pair of lists whose first
+; list must be a set.
+(define new-entry build)
+
+(define (first pair)
+  (car pair))
+
+(define (second pair)
+  (cadr pair))
+
+; Lookup the entry with 'name', i.e., the corresponding element in the
+; entry's second list. If 'name' does not exist in the first list, invoke
+; 'entry-f' with the missing name.
+(define (lookup-in-entry name entry entry-f)
+  (cond
+    ((or (null? entry) (null? (first entry))) (entry-f name))
+    ((eq? (car (first entry)) name) (car (second entry)))
+    (else (lookup-in-entry name (build (cdr (first entry)) (cdr (second entry))) entry-f))))
+
+; alternative version using helper function with descriptive names
+; (as in the book)
+(define (lookup-in-entry2 name entry entry-f)
+  (lookup-in-entry-help name (first entry) (second entry) entry-f))
+
+(define (lookup-in-entry-help name names values entry-f)
+  (cond
+    ((null? names) (entry-f name))
+    ((eq? name (car names)) (car values))
+    (else (lookup-in-entry-help name (cdr names) (cdr values) entry-f))))
+
+; A table (or environment) is a (possibly empty) list of entries.
+(define (extend-table) cons)
+
+; Find the first entry which contains 'name' in 'table'. If it does not exist,
+; call table-f
+(define (lookup-in-table name table table-f)
+  (cond
+    ((null? table) (table-f name))
+    (else (lookup-in-entry
+           name
+           (car table)
+           (lambda (name) (lookup-in-table name (cdr table) table-f))))))
