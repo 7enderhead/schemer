@@ -886,7 +886,9 @@
 (define body-of third)
 
 (define (*cond e table)
-  e)
+  (evcon (cond-lines-of e) table))
+
+(define cond-lines-of cdr)
 
 ; evaluate the lines of the given 'cond' expression
 (define (evcon lines table)
