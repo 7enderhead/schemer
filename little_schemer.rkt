@@ -517,12 +517,12 @@
   (car nexp))
 
 ; generic version of 'value' of arithmetic expressions
-(define (value nexp)
+(define (ar-value nexp)
   (cond
     ((atom? nexp) nexp)
     (((atom-to-function (operator nexp))
-      (value (1st-sub-exp nexp))
-      (value (2nd-sub-exp nexp))))))
+      (ar-value (1st-sub-exp nexp))
+      (ar-value (2nd-sub-exp nexp))))))
 
 ; a version of multirember (removing all occurrences of an atom from a list of atoms)
 ; parameterized with a 'test?' function, which tells us whether an atom should be remove
@@ -807,3 +807,82 @@
            name
            (car table)
            (lambda (name) (lookup-in-table name (cdr table) table-f))))))
+
+;
+; Now we'll build a simple Scheme interpreter, horray!
+;
+
+; map expressions to actions, i.e., each action is a '*' function performing
+; the necessary work for the given type of expression
+(define (expression-to-action e)
+  (cond
+    ((atom? e) (atom-to-action e))
+    (else (list-to-action e))))
+
+; Define all known built-in functions, numbers and boolean values as *const,
+; everything else as *identifier
+(define (atom-to-action a)
+  (cond
+    ((number? a) *const)
+    ((eq? a #t) *const)
+    ((eq? a #f) *const)
+    ((eq? a 'cons) *const)
+    ((eq? a 'car) *const)
+    ((eq? a 'cdr) *const)
+    ((eq? a 'null?) *const)
+    ((eq? a 'eq?) *const)
+    ((eq? a 'atom?) *const)
+    ((eq? a 'zero?) *const)
+    ((eq? a 'add1) *const)
+    ((eq? a 'sub1) *const)
+    ((eq? a 'number?) *const)
+    (else *identifier)))
+
+; 'quote', 'lambda' and 'cond' need special treatment in their functions,
+; everything else is an *application
+(define (list-to-action l)
+  (cond
+    ((atom? (car l))
+     (cond
+       ((eq? (car l) 'quote) *quote)
+       ((eq? (car l) 'lambda) *lambda)
+       ((eq? (car l) 'cond) *cond)
+       (else *application)))
+    (else *application)))
+
+; numbers and booleans represent themselves, everything else is defined
+; as a primitive table entry
+(define (*const e table)
+  (cond
+    ((number? e) e)
+    ((eq? e #t) #t)
+    ((eq? e #f) #f)
+    (else (build 'primitive e) #|| build table entry |#)))
+
+(define (*identifier e table)
+  (lookup-in-table e table initial-table))
+
+(define (initial-table name)
+  (car '()) ; will crash, as this function should never be used :-)
+  )
+
+(define (*application e table)
+  e)
+
+(define (*quote e table)
+  (text-of e))
+
+(define text-of second)
+
+(define (*lambda e table)
+  e)
+
+(define (*cond e table)
+  e)
+
+; interpret given Scheme expression
+(define (value e)
+  (meaning e '() #|empty table without any definitions yet|#))
+
+(define (meaning e table)
+  ((expression-to-action e) e table))
