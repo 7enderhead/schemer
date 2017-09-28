@@ -874,11 +874,40 @@
 
 (define text-of second)
 
+; build a list containing the table (i.e., the function's environment), its formal parameters
+; and its body
 (define (*lambda e table)
-  e)
+  (build 'non-primitive
+         (cons table (cdr e))))
+
+; helper functions to access parts of the list created by *lambda
+(define table-of first)
+(define formals-of second)
+(define body-of third)
 
 (define (*cond e table)
   e)
+
+; evaluate the lines of the given 'cond' expression
+(define (evcon lines table)
+  (cond
+    ; Is it an 'else' line? Then we need the meaning of the answer part.
+    ((else? (question-of (car lines)))
+     (meaning (answer-of (car lines)) table))
+    ; Is the question part true? Then get the meaning of the answer part.
+    ((meaning (question-of (car lines)) table) ; question part is true
+     (meaning (answer-of (car lines)) table)) ; return meaning of answer part
+    ; Else, we have to keep on evaluating the other lines
+    (else (evcon (cdr lines) table))))
+
+; Is the given expression the 'else' keyword?
+(define (else? x)
+  (cond
+    ((atom? x) (eq? x 'else))
+    (else #f)))
+
+(define question-of first) ; the question is the first expression
+(define answer-of second) ; our cond only allows one expression as answer
 
 ; interpret given Scheme expression
 (define (value e)
