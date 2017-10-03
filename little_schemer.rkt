@@ -866,8 +866,58 @@
   (car '()) ; will crash, as this function should never be used :-)
   )
 
+; apply the correct function to the already evaluated meaning of
+; all its arguments
 (define (*application e table)
-  e)
+  (apply
+   (meaning (function-of e) table)
+   (evlis (arguments-of e) table)))
+
+(define function-of car)
+(define arguments-of cdr)
+
+(define (primitive? l)
+  (eq? (first l) 'primitive))
+
+(define (non-primitive? l)
+  (eq? (first l) 'non-primitive))
+
+; apply the given function to its (already evaluated) parameter values
+(define (apply fun vals)
+  (cond
+    ((primitive? fun) (apply-primitive (second fun) vals))
+    ((non-primitive? fun) (apply-closure (second fun) vals))))
+
+(define (apply-primitive name vals)
+  (cond
+    ((eq? name 'cons) (cons (first vals) (second vals)))
+    ((eq? name 'car) (car (first vals)))
+    ((eq? name 'cdr) (cdr (first vals)))
+    ((eq? name 'null?) (null? (first vals)))
+    ((eq? name 'eq?) (eq? (first vals) (second vals)))
+    ((eq? name 'atom?) (:atom? (first vals)))
+    ((eq? name 'zero?) (zero? (first vals)))
+    ((eq? name 'add1) (add1 (first vals)))
+    ((eq? name 'sub1) (sub1 (first vals)))
+    ((eq? name 'number?) (number? (first vals)))))
+
+(define (:atom? x)
+  (cond
+    ((atom? x) #t)
+    ((null? x) #f)
+    ((eq? (car x) 'primitive) #t)
+    ((eq? (car x) 'non-primitive) #t)
+    (else #f)))
+
+(define (apply-closure closure vals) closure)
+
+; evaluate the list of arguments 'args' and return a
+; list of their meanings
+(define (evlis args table)
+  (cond
+    ((null? args) '())
+    (else (cons (meaning (car args) table)
+                (evlis (cdr args) table)))))
 
 (define (*quote e table)
   (text-of e))
@@ -875,7 +925,7 @@
 (define text-of second)
 
 ; build a list containing the table (i.e., the function's environment), its formal parameters
-; and its body
+; and its body (aka 'closure record')
 (define (*lambda e table)
   (build 'non-primitive
          (cons table (cdr e))))
@@ -915,5 +965,6 @@
 (define (value e)
   (meaning e '() #|empty table without any definitions yet|#))
 
+; get meaning of expression by invoking the correct action for it
 (define (meaning e table)
   ((expression-to-action e) e table))
