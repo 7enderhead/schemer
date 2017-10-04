@@ -909,7 +909,17 @@
     ((eq? (car x) 'non-primitive) #t)
     (else #f)))
 
-(define (apply-closure closure vals) closure)
+; "Applying a closure to a list of values is the same as finding the meaning
+; of the closure's body with its table extended by an entry of the form (formals values).
+; In this entry, 'formals' is the formals of the closure and 'values' is the
+; result of 'evlis'."
+(define (apply-closure closure vals)
+  (meaning
+   (body-of closure)
+   ; extend table
+   (extend-table
+    (new-entry (formals-of closure) vals)
+    (table-of closure))))
 
 ; evaluate the list of arguments 'args' and return a
 ; list of their meanings
@@ -930,7 +940,7 @@
   (build 'non-primitive
          (cons table (cdr e))))
 
-; helper functions to access parts of the list created by *lambda
+; helper functions to access parts of the closure created by *lambda
 (define table-of first)
 (define formals-of second)
 (define body-of third)
