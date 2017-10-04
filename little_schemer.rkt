@@ -796,7 +796,7 @@
     (else (lookup-in-entry-help name (cdr names) (cdr values) entry-f))))
 
 ; A table (or environment) is a (possibly empty) list of entries.
-(define (extend-table) cons)
+(define extend-table cons)
 
 ; Find the first entry which contains 'name' in 'table'. If it does not exist,
 ; call table-f
